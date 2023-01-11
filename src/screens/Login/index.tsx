@@ -7,6 +7,10 @@ import Button from "../../components/Button";
 import TextInput from "../../components/TextInput";
 import { theme } from "../../config/theme";
 import { emailValidator, passwordValidator } from "../../core/utils";
+import { signInWithEmailAndPassword } from "firebase/auth/react-native";
+import { fbAuth } from "../../services/firebase";
+import { translateFBError } from "../../core/translate";
+import Dialog from "../../components/Dialog";
 
 type Props = {
   navigation: Navigation;
@@ -15,6 +19,10 @@ type Props = {
 const LoginScreen = ({ navigation }: Props) => {
   const [email, setEmail] = useState({ value: "", error: "" });
   const [password, setPassword] = useState({ value: "", error: "" });
+  const [visible, setVisible] = useState(false);
+  const [loginError, setLoginError] = React.useState("");
+  const showDialog = () => setVisible(true);
+  const hideDialog = () => setVisible(false);
 
   const _onLoginPressed = () => {
     const emailError = emailValidator(email.value);
@@ -26,7 +34,15 @@ const LoginScreen = ({ navigation }: Props) => {
       return;
     }
 
-    navigation.navigate("Dashboard");
+    signInWithEmailAndPassword(fbAuth, email.value, password.value).catch((error) => {
+      const message = translateFBError(error);
+      if (message) {
+        showDialog();
+        setLoginError(message);
+        setEmail({ value: "", error: "" });
+        setPassword({ value: "", error: "" });
+      }
+    });
   };
 
   return (
@@ -74,6 +90,7 @@ const LoginScreen = ({ navigation }: Props) => {
           <Text style={styles.link}>Sign up</Text>
         </TouchableOpacity>
       </View>
+      <Dialog visible={visible} title="Error" message={loginError} onClose={hideDialog} />
     </Background>
   );
 };

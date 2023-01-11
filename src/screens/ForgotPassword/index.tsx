@@ -7,6 +7,10 @@ import Header from "../../components/Header";
 import TextInput from "../../components/TextInput";
 import { theme } from "../../config/theme";
 import Button from "../../components/Button";
+import Dialog from "../../components/Dialog";
+import { sendPasswordResetEmail } from "firebase/auth/react-native";
+import { fbAuth } from "../../services/firebase";
+import { translateFBError } from "../../core/translate";
 
 type Props = {
   navigation: Navigation;
@@ -15,15 +19,36 @@ type Props = {
 const ForgotPasswordScreen = ({ navigation }: Props) => {
   const [email, setEmail] = useState({ value: "", error: "" });
 
+  const [dialogMessage, setDialogMessage] = useState({ title: "", message: "" });
+  const [visible, setVisible] = useState(false);
+  const showDialog = () => setVisible(true);
+  const hideDialog = () => {
+    setVisible(false);
+    navigation.navigate("LoginScreen");
+  };
+
   const _onSendPressed = () => {
     const emailError = emailValidator(email.value);
-
     if (emailError) {
       setEmail({ ...email, error: emailError });
       return;
+    } else {
+      sendPasswordResetEmail(fbAuth, email.value)
+        .then(() => {
+          setDialogMessage({
+            title: "Reset Link Sent",
+            message: `Password reset link has been sent to ${email.value}`,
+          });
+          showDialog();
+        })
+        .catch((error) => {
+          const message = translateFBError(error);
+          if (message) {
+            setDialogMessage({ title: "Error", message });
+            showDialog();
+          }
+        });
     }
-
-    navigation.navigate("LoginScreen");
   };
 
   return (
@@ -52,6 +77,12 @@ const ForgotPasswordScreen = ({ navigation }: Props) => {
       <TouchableOpacity style={styles.back} onPress={() => navigation.navigate("LoginScreen")}>
         <Text style={styles.label}>← Back to login</Text>
       </TouchableOpacity>
+      <Dialog
+        visible={visible}
+        title={dialogMessage.title}
+        message={dialogMessage.message}
+        onClose={hideDialog}
+      />
     </Background>
   );
 };

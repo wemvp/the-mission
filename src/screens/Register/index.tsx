@@ -9,6 +9,8 @@ import { theme } from "../../config/theme";
 import { emailValidator, passwordValidator, nameValidator } from "../../core/utils";
 import { createUserWithEmailAndPassword } from "firebase/auth/react-native";
 import { fbAuth } from "../../services/firebase";
+import { translateFBError } from "../../core/translate";
+import Dialog from "../../components/Dialog";
 
 type Props = {
   navigation: Navigation;
@@ -18,6 +20,11 @@ const RegisterScreen = ({ navigation }: Props) => {
   const [name, setName] = useState({ value: "", error: "" });
   const [email, setEmail] = useState({ value: "", error: "" });
   const [password, setPassword] = useState({ value: "", error: "" });
+
+  const [registerError, setRegisterError] = React.useState("");
+  const [visible, setVisible] = React.useState(false);
+  const showDialog = () => setVisible(true);
+  const hideDialog = () => setVisible(false);
 
   const _onSignUpPressed = () => {
     const nameError = nameValidator(name.value);
@@ -30,17 +37,15 @@ const RegisterScreen = ({ navigation }: Props) => {
       setPassword({ ...password, error: passwordError });
       return;
     }
-    createUserWithEmailAndPassword(fbAuth, email.value, password.value)
-      .then((userCredential) => {
-        // Signed in
-        const user = userCredential.user;
-        // ...
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // ..
-      });
+    createUserWithEmailAndPassword(fbAuth, email.value, password.value).catch((error) => {
+      const message = translateFBError(error);
+      if (message) {
+        showDialog();
+        setRegisterError(message);
+        setEmail({ value: "", error: "" });
+        setPassword({ value: "", error: "" });
+      }
+    });
   };
 
   return (
@@ -89,6 +94,7 @@ const RegisterScreen = ({ navigation }: Props) => {
           <Text style={styles.link}>Login</Text>
         </TouchableOpacity>
       </View>
+      <Dialog visible={visible} title="Error" message={registerError} onClose={hideDialog} />
     </Background>
   );
 };
