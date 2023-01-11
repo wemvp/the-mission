@@ -3,7 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import LoginHomeScreen from "../../screens/LoginHome";
 import LoginScreen from "../../screens/Login";
 import Register from "../../screens/Register";
-
+import ForgotPassword from "../../screens/ForgotPassword";
 const Stack = createNativeStackNavigator();
 
 export default function LoginStack() {
@@ -12,6 +12,7 @@ export default function LoginStack() {
       <Stack.Screen options={{ headerShown: false }} name="LoginHome" component={LoginHomeScreen} />
       <Stack.Screen options={{ headerShown: false }} name="LoginScreen" component={LoginScreen} />
       <Stack.Screen options={{ headerShown: false }} name="RegisterScreen" component={Register} />
+      <Stack.Screen options={{ headerShown: false }} name="ForgotPwd" component={ForgotPassword} />
     </Stack.Navigator>
   );
 }
