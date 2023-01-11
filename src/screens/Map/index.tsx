@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Text, View } from "react-native";
 
-export const MapScreenDetails: ScreenDetails = { name: "Town", icon: "map" };
+export const MapScreenDetails: ScreenDetails = { name: "Town", icon: "map", noHeader: true };
 
 function MapScreen() {
   return (

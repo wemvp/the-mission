@@ -7,6 +7,8 @@ import Button from "../../components/Button";
 import TextInput from "../../components/TextInput";
 import { theme } from "../../config/theme";
 import { emailValidator, passwordValidator, nameValidator } from "../../core/utils";
+import { createUserWithEmailAndPassword } from "firebase/auth/react-native";
+import { fbAuth } from "../../services/firebase";
 
 type Props = {
   navigation: Navigation;
@@ -28,8 +30,17 @@ const RegisterScreen = ({ navigation }: Props) => {
       setPassword({ ...password, error: passwordError });
       return;
     }
-
-    navigation.navigate("Dashboard");
+    createUserWithEmailAndPassword(fbAuth, email.value, password.value)
+      .then((userCredential) => {
+        // Signed in
+        const user = userCredential.user;
+        // ...
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // ..
+      });
   };
 
   return (
