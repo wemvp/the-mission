@@ -20,9 +20,9 @@ export default function MainStack() {
     >
       {Tabs.map((aTab) => (
         <Tab.Screen
-          options={{ headerShown: !aTab.details.noHeader }}
-          key={aTab.details.name}
-          name={aTab.details.name}
+          options={{ headerShown: !aTab.details?.noHeader }}
+          key={aTab.details?.name}
+          name={aTab.details?.name}
           component={aTab.component}
         />
       ))}
